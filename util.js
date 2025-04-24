@@ -1,10 +1,24 @@
 console.log(typeof "is this thing on")
-/// will not work until you describe your eagle eye cords and zip code, but the cords also must be valid.
-// may turn into func or something as there is more than one
-//
 
-const eagleEyeCords = []
-const map = L.map('map').setView(eagleEyeCords);
+const MAP_CONFIG = {
+    lat: "",
+    lng: "",
+    zoom: "",
+    mapID: "map"
+};
+
+// lat float
+// lng float
+// zoom  int
+// number ^js
+function initMap({lat,lng,zoom,mapID="map"}) {
+    if (typeof lat != "number" || typeof lng != "number" || zoom != "number") {
+        throw new Error("Missing require lat/lng and zoom values");
+    }
+    return L.map(mapID).setView([lat,lng], zoom);
+}
+
+const map = initMap(MAP_CONFIG);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -26,7 +40,8 @@ function getColor(route) {
 let uspsGeoJSON = L.geoJson().addTo(map);
 
 // GeoJSON from USPS EDDM API username=EDDM
-let apiUrl = 'https://gis.usps.com/arcgis/rest/services/EDDM/selectZIP/GPServer/routes/execute?f=json&env:outSR=4326&ZIP=<ZIP>&Rte_Box=R&UserName=EDDM';
+const ZIP_CODE = ""
+let apiUrl = `https://gis.usps.com/arcgis/rest/services/EDDM/selectZIP/GPServer/routes/execute?f=json&env:outSR=4326&ZIP=${ZIP_CODE}&Rte_Box=R&UserName=EDDM`;
 fetch(apiUrl)
     .then(response => {
         if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
@@ -70,7 +85,7 @@ fetch(apiUrl)
             map.fitBounds(uspsGeoJSON.getBounds());
         } else {
             console.warn('No valid bounds for GeoJSON layer');
-            map.setView(eagleEyeCords); 
+            map.setView(MAP_CONFIG); //map id may mess it up
         }
 
         // adds legend
